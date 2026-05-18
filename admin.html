@@ -141,15 +141,6 @@
     </div>
   </div>
   <button id="generate-btn" onclick="generateReport()">Generar reporte →</button>
-  <div class="token-box">
-    <h4>🔑 Token de GitHub</h4>
-    <p>Necesario para que el botón "Publicar" suba el reporte directo al repositorio. Solo se configura una vez.</p>
-    <div class="token-row">
-      <input type="password" id="gh-token-input" class="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      <button onclick="saveGhToken()" class="token-save-btn">Guardar</button>
-    </div>
-    <div id="token-status"></div>
-  </div>
 </div>
 
 <div id="report-screen">
@@ -188,17 +179,6 @@ let allData={teams:[],onedrive:[]};
 let detectedPeriod=7;
 let currentMode='week';
 
-window.addEventListener('DOMContentLoaded',()=>{
-  const saved=localStorage.getItem('gh_token');
-  if(saved){document.getElementById('gh-token-input').value=saved;document.getElementById('token-status').textContent='✓ Token guardado';}
-});
-
-function saveGhToken(){
-  const val=document.getElementById('gh-token-input').value.trim();
-  if(!val) return;
-  localStorage.setItem('gh_token',val);
-  document.getElementById('token-status').textContent='✓ Token guardado';
-}
 
 function onDrag(e,k){e.preventDefault();document.getElementById('zone-'+k).classList.add('dragover');}
 function offDrag(k){document.getElementById('zone-'+k).classList.remove('dragover');}
@@ -250,8 +230,13 @@ function goBack(){
 }
 
 async function publishToGitHub(){
-  const token=localStorage.getItem('gh_token');
-  if(!token){alert('Primero guarda tu token de GitHub en la parte inferior de la pantalla de carga.');return;}
+  let token=localStorage.getItem('gh_token');
+  if(!token){
+    token=prompt('Primera vez: pega tu token de GitHub (ghp_...).\nSolo se pedirá esta vez.');
+    if(!token) return;
+    localStorage.setItem('gh_token',token.trim());
+    token=token.trim();
+  }
   const btn=document.getElementById('publish-btn');
   btn.textContent='Publicando...';btn.disabled=true;
   try{
